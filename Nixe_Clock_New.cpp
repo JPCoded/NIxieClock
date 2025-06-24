@@ -14,6 +14,7 @@
 #include <nixie10.h> // my nixie driver library
 #include <Wire.h> // I2C library
 #include "RTClib.h" // adafruit library to drive DS1307 RTC connected via I2C
+#include "Time.h"
 
 //WiFi headers
 #include <WiFi.h>
@@ -39,12 +40,15 @@
 #define CLOCKSETDELAY 400  //I like this amount of delay for setting my clock, but change it as you like
 #define OFF 11 //setting a tube to a value higher than 9 turns it off
 
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = -21600;
+
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes; //some global variables to hold current time
 
 nixie10 outReg; //tube-register object
 RTC_DS3231 rtc; //real-time-clock object
-
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}; //for serial output
 
 // Replace with your network credentials
 const char* ssid     = "REPLACE_WITH_YOUR_SSID";
@@ -54,7 +58,6 @@ const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-String formattedDate;
 
 void setup() {
  outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN); //initialize the output register array
@@ -85,6 +88,9 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  printLocalTime();
 // Initialize a NTPClient to get time
   timeClient.begin();
   // Set offset time in seconds to adjust for your timezone, for example:
@@ -112,15 +118,17 @@ void setup() {
 }
 
 void loop() {
+	struct tm timeinfo;
+
   DateTime now = rtc.now(); //take a "snapshot" of the time
   hours = (now.hour() ? now.hour() : 12); //account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();  
 
-while(!timeClient.update()) {
+  while(!timeClient.update()) {
     timeClient.forceUpdate();
   }
   
-   formattedDate = timeClient.getFormattedDate();
+  formattedDate = timeClient.getFormattedDate();
   Serial.println(formattedDate);
   String[] NewTime = GetTime(formattedDate); 	
   // Extract date
@@ -133,6 +141,7 @@ while(!timeClient.update()) {
   Serial.print("HOUR: ");
   Serial.println(NewTime[1]);
   delay(1000);
+  
   
   /*
   if(digitalRead(HOURBUTTONPIN)){
@@ -182,4 +191,38 @@ string[] GetTime(String currentTime)
 	SplitTime [0] = dayStamp;
 	SplitTime [1] = timeStamp;
 	return SplitTime;	
+}
+
+void printLocalTime(){
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  Serial.print("Day of week: ");
+  Serial.println(&timeinfo, "%A");
+  Serial.print("Month: ");
+  Serial.println(&timeinfo, "%B");
+  Serial.print("Day of Month: ");
+  Serial.println(&timeinfo, "%d");
+  Serial.print("Year: ");
+  Serial.println(&timeinfo, "%Y");
+  Serial.print("Hour: ");
+  Serial.println(&timeinfo, "%H");
+  Serial.print("Hour (12 hour format): ");
+  Serial.println(&timeinfo, "%I");
+  Serial.print("Minute: ");
+  Serial.println(&timeinfo, "%M");
+  Serial.print("Second: ");
+  Serial.println(&timeinfo, "%S");
+
+  Serial.println("Time variables");
+  char timeHour[3];
+  strftime(timeHour,3, "%H", &timeinfo);
+  Serial.println(timeHour);
+  char timeWeekDay[10];
+  strftime(timeWeekDay,10, "%A", &timeinfo);
+  Serial.println(timeWeekDay);
+  Serial.println();
 }
