@@ -178,6 +178,9 @@ void loop() {
     digitalWrite(LEDPIN, LOW);
   }
 
+ //Convert minutes and hours we got from NTP to int
+  minutes = atoi(Minutes);
+  hours = atoi(Hours);
   //break up current time into individual digits and convert to 12hr format
   min_ones = minutes%10;
   min_tens = (minutes - min_ones)/10;
