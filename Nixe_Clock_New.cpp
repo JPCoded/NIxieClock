@@ -58,7 +58,6 @@ const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-
 void setup() {
  outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN); //initialize the output register array
  
@@ -118,8 +117,9 @@ void setup() {
 }
 
 void loop() {
-	struct tm timeinfo;
-
+  struct tm timeinfo;
+  char Hours[3];
+  char Minutes[3];	
   DateTime now = rtc.now(); //take a "snapshot" of the time
   hours = (now.hour() ? now.hour() : 12); //account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();  
@@ -127,20 +127,28 @@ void loop() {
   while(!timeClient.update()) {
     timeClient.forceUpdate();
   }
-  
-  formattedDate = timeClient.getFormattedDate();
-  Serial.println(formattedDate);
-  String[] NewTime = GetTime(formattedDate); 	
+
+  if(!getLocalTime(&timeinfo)){
+  Serial.println("Failed to obtain time");
+  return;
+  }
+	
+  strftime(Hour,3, "%H", &timeinfo);
+  strftime(Minutes,3, "%I", &timeinfo)
+
+//  formattedDate = timeClient.getFormattedDate();
+ // Serial.println(formattedDate);
+ // String[] NewTime = GetTime(formattedDate); 	
   // Extract date
   //int splitT = formattedDate.indexOf("T");
   //dayStamp = formattedDate.substring(0, splitT);
-  Serial.print("DATE: ");
-  Serial.println(NewTime[0]);
+ // Serial.print("DATE: ");
+ // Serial.println(NewTime[0]);
   // Extract time
   //timeStamp = formattedDate.substring(splitT+1, formattedDate.length()-1);
-  Serial.print("HOUR: ");
-  Serial.println(NewTime[1]);
-  delay(1000);
+ // Serial.print("HOUR: ");
+ // Serial.println(NewTime[1]);
+ // delay(1000);
   
   
   /*
