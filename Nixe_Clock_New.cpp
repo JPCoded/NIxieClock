@@ -6,7 +6,7 @@
  * 
  * The clock can also output data via serial
  * 
- * Chris Green - 1/11/2016
+ * Original Chris Green - 1/11/2016
  * Modified by John Pomeroy
  */
 
@@ -91,13 +91,13 @@ void setup() {
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   printLocalTime();
 // Initialize a NTPClient to get time
-  timeClient.begin();
+//  timeClient.begin();
   // Set offset time in seconds to adjust for your timezone, for example:
   // GMT +1 = 3600
   // GMT +8 = 28800
   // GMT -1 = -3600
   // GMT 0 = 0
-  timeClient.setTimeOffset(-21600);
+//  timeClient.setTimeOffset(-21600);
   
  //Setting up RTC
  if (! rtc.begin()) {
@@ -124,9 +124,9 @@ void loop() {
   hours = (now.hour() ? now.hour() : 12); //account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();  
 
-  while(!timeClient.update()) {
-    timeClient.forceUpdate();
-  }
+//  while(!timeClient.update()) {
+  //  timeClient.forceUpdate();
+ // }
 
   if(!getLocalTime(&timeinfo)){
   Serial.println("Failed to obtain time");
@@ -190,7 +190,7 @@ void loop() {
   outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones); //push out the current time to the register array, turning off 10s hour tube if zero.
     
 }
-
+/*
 string[] GetTime(String currentTime)
 {
 	String[] SplitTime = {"",""};
@@ -203,6 +203,7 @@ string[] GetTime(String currentTime)
 	SplitTime [1] = timeStamp;
 	return SplitTime;	
 }
+*/
 
 void printLocalTime(){
   struct tm timeinfo;
