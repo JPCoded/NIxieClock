@@ -27,8 +27,8 @@
 #define DATAPIN 2
 
 //Button Pins
-#define HOURBUTTONPIN 5
-#define MINUTEBUTTONPIN 6
+//#define HOURBUTTONPIN 5
+//#define MINUTEBUTTONPIN 6
 #define WIFIBUTTON 7
 
 #define LEDPIN 13
@@ -37,10 +37,12 @@
 //SCL PIN 22
 //SDA PIN 21
 
-#define CLOCKSETDELAY 400  //I like this amount of delay for setting my clock, but change it as you like
-#define OFF 11 //setting a tube to a value higher than 9 turns it off
+//I like this amount of delay for setting my clock, but change it as you like
+#define CLOCKSETDELAY 400  
+// setting a tube to a value higher than 9 turns it off
+#define OFF 11 
 
-
+//NPT server info
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
 const int   daylightOffset_sec = -21600;
@@ -128,14 +130,21 @@ void loop() {
   //  timeClient.forceUpdate();
  // }
 
-  if(!getLocalTime(&timeinfo)){
-  Serial.println("Failed to obtain time");
-  return;
-  }
+
+
+  if(digitalRead(WIFIBUTTON)){ 
+	  
+  	if(!getLocalTime(&timeinfo)){
+ 	 Serial.println("Failed to obtain time");
+ 	 return;
+ 	 }
 	
   strftime(Hour,3, "%H", &timeinfo);
   strftime(Minutes,3, "%I", &timeinfo)
-
+  //Convert minutes and hours we got from NTP to int
+  minutes = atoi(Minutes);
+  hours = atoi(Hours);
+  }
 //  formattedDate = timeClient.getFormattedDate();
  // Serial.println(formattedDate);
  // String[] NewTime = GetTime(formattedDate); 	
