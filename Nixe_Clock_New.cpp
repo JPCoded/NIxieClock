@@ -1,20 +1,20 @@
-/* Arduino-free nixie clock, built with a standalone ATmega328P microcontroller and shift registers
+/* Arduino-free nixie clock, using ESP323, RTC and Shift Registers
  * 
- * Clock has two buttons, to set hours and minutes respectively.
- * A DS1307 real-time clock is also included in this implementation, allowing for the clock to keep more accurate time and retain it.
- * If the RTC battery dies, the clock *should* output "0:00"
- * 
+ * For now clock has 1 button to get updated time from NTP
+ * A DS2321 real-time clock is also included in this implementation, allowing for the clock to keep more accurate time and retain it.
+ *  * 
  * The clock can also output data via serial
  * 
- * Original Chris Green - 1/11/2016
+ * Original code design by Chris Green - 1/11/2016
  * Modified by John Pomeroy
+ * Uses nixie10 library. 
  */
 
 
 #include <nixie10.h> // my nixie driver library
 #include <Wire.h> // I2C library
 #include "RTClib.h" // adafruit library to drive DS1307 RTC connected via I2C
-#include "Time.h"
+#include "Time.h" //Time library to get struct for time
 
 //WiFi headers
 #include <WiFi.h>
