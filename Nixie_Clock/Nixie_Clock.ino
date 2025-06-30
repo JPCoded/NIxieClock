@@ -2,19 +2,19 @@
  * 
  * For now clock has 1 button to get updated time from NTP
  * A DS2321 real-time clock is also included in this implementation, allowing for the clock to keep more accurate time and retain it.
- *  * 
+ *  
  * The clock can also output data via serial
  * 
- * Original code design by Chris Green - 1/11/2016
+ * Nixie10 headers and original code by Chris Green - 1/11/2016
  * Modified by John Pomeroy
- * Uses nixie10 library. 
+ * 
  */
 
 
-#include <nixie10.h> // my nixie driver library
+#include <nixie10.h> // nixie driver library
 #include <Wire.h> // I2C library
 #include "RTClib.h" // adafruit library to drive DS1307 RTC connected via I2C
-#include <time.h>//Time library to get struct for time
+#include <time.h> // Time library to get struct for time
 
 //WiFi headers
 #include <WiFi.h>
