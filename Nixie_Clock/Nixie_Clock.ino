@@ -121,6 +121,15 @@ void setup() {
 }
 
 void loop() {
+
+	if(wifi.status() == WL_CONNECTED)
+	{
+		digitalWrite(WIFILED, HIGH);
+	}
+	else
+	{	
+		digitalWrite(WIFILED, LOW);
+	}
   struct tm timeinfo;
   char Hours[3];
   char Minutes[3];	
