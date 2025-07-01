@@ -32,6 +32,8 @@
 #define WIFIBUTTON 7
 
 #define LEDPIN 13
+#define WIFILED 14
+#define NTPLED 12
 
 //SQW PIN 4
 //SCL PIN 22
@@ -132,8 +134,9 @@ void loop() {
 
 
 
-  if(digitalRead(WIFIBUTTON)){ 
-	  
+  if(digitalRead(WIFIBUTTON))
+  {   
+	  digitalWrite(NTPLED, high);
   	if(!getLocalTime(&timeinfo)){
  	 Serial.println("Failed to obtain time");
  	 return;
@@ -145,6 +148,11 @@ void loop() {
   minutes = atoi(Minutes);
   hours = atoi(Hours);
   }
+	else
+  {
+	  digitalWrite(NTPLED,low);
+  }
+	
 //  formattedDate = timeClient.getFormattedDate();
  // Serial.println(formattedDate);
  // String[] NewTime = GetTime(formattedDate); 	
