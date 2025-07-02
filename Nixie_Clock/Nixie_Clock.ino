@@ -141,8 +141,6 @@ void loop() {
   //  timeClient.forceUpdate();
  // }
 
-
-
   if(digitalRead(WIFIBUTTON))
   {   
 	  digitalWrite(NTPLED, high);
@@ -156,47 +154,14 @@ void loop() {
   //Convert minutes and hours we got from NTP to int
   minutes = atoi(Minutes);
   hours = atoi(Hours);
+  rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
   }
 	else
   {
 	  digitalWrite(NTPLED,low);
   }
-	
-//  formattedDate = timeClient.getFormattedDate();
- // Serial.println(formattedDate);
- // String[] NewTime = GetTime(formattedDate); 	
-  // Extract date
-  //int splitT = formattedDate.indexOf("T");
-  //dayStamp = formattedDate.substring(0, splitT);
- // Serial.print("DATE: ");
- // Serial.println(NewTime[0]);
-  // Extract time
-  //timeStamp = formattedDate.substring(splitT+1, formattedDate.length()-1);
- // Serial.print("HOUR: ");
- // Serial.println(NewTime[1]);
- // delay(1000);
-  
-  
-  /*
-  if(digitalRead(HOURBUTTONPIN)){
-    if(hours < 23)
-      hours++;
-    else
-      hours = 1;
-    rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
-    delay(CLOCKSETDELAY);
-  }
 
-  if(digitalRead(MINUTEBUTTONPIN)){
-    if(minutes < 59)
-      minutes++;
-    else
-      minutes = 0;
-    rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
-    delay(CLOCKSETDELAY);
-  }
   
-  */
   int time = millis();
   if(!(time%1000)){
     digitalWrite(LEDPIN, HIGH);
@@ -216,20 +181,6 @@ void loop() {
   outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones); //push out the current time to the register array, turning off 10s hour tube if zero.
     
 }
-/*
-string[] GetTime(String currentTime)
-{
-	String[] SplitTime = {"",""};
-	String dayStamp;
-	String timeStamp;
-	int splitT = formattedDate.indexOf("T");
-	dayStamp = formattedDate.substring(0, splitT);
-  	timeStamp = formattedDate.substring(splitT+1, formattedDate.length()-1);
-	SplitTime [0] = dayStamp;
-	SplitTime [1] = timeStamp;
-	return SplitTime;	
-}
-*/
 
 void printLocalTime(){
   struct tm timeinfo;
