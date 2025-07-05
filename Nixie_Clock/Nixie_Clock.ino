@@ -45,8 +45,8 @@
 
 // NPT server info
 const char *ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = 0;
-const int daylightOffset_sec = -21600;
+const long gmtOffset_sec = -21600;
+const int daylightOffset_sec = 3600;
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
@@ -54,8 +54,8 @@ nixie10 outReg;  // tube-register object
 RTC_DS3231 rtc;  // real-time-clock object
 
 // Replace with your network credentials
-const char *ssid = "REPLACE_WITH_YOUR_SSID";
-const char *password = "REPLACE_WITH_YOUR_PASSWORD";
+const char *ssid = "NETWORK";
+const char *password = "PASSWORD";
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -150,7 +150,7 @@ void loop() {
   strftime(Minutes, 3, "%I", &timeinfo);
 
     // Convert minutes and hours we got from NTP to int
-    minutes = atoi(Minutes);
+  minutes = atoi(Minutes);
   hours = atoi(Hours);
   rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
 
@@ -193,8 +193,17 @@ void loop() {
   min_tens = (minutes - min_ones) / 10;
   hour_ones = (hours > 12) ? (hours - 12) % 10 : hours % 10;                            // convert to 12hr format
   hour_tens = (hours > 12) ? (hours - hour_ones - 12) / 10 : (hours - hour_ones) / 10;  // convert to 12hr format
-
+ /*
+  Serial.print("Current Time: ");
+  Serial.print(hour_tens);
+  Serial.print(hour_ones);
+  Serial.print(":");
+  Serial.print(min_tens);
+  Serial.print(min_ones);
+  Serial.println("");
+  */
   outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones);  // push out the current time to the register array, turning off 10s hour tube if zero.
+delay(1000);
 }
 
 void printLocalTime() {
