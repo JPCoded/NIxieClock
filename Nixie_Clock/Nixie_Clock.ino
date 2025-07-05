@@ -10,10 +10,10 @@
  *
  */
 
-#include <nixie10.h> // nixie driver library
-#include <Wire.h>    // I2C library
-#include "RTClib.h"  // adafruit library to drive DS1307 RTC connected via I2C
-#include <time.h>    // Time library to get struct for time
+#include <nixie10.h>  // nixie driver library
+#include <Wire.h>     // I2C library
+#include "RTClib.h"   // adafruit library to drive DS1307 RTC connected via I2C
+#include <time.h>     // Time library to get struct for time
 
 // WiFi headers
 #include <WiFi.h>
@@ -28,7 +28,7 @@
 // Button Pins
 // #define HOURBUTTONPIN 5
 // #define MINUTEBUTTONPIN 6
-#define WIFIBUTTON 7
+#define WIFIBUTTON 32
 
 #define LEDPIN 13
 #define WIFILED 14
@@ -48,10 +48,10 @@ const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = -21600;
 
-int hour_tens, hour_ones, min_tens, min_ones, hours, minutes; // some global variables to hold current time
+int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
-nixie10 outReg; // tube-register object
-RTC_DS3231 rtc; // real-time-clock object
+nixie10 outReg;  // tube-register object
+RTC_DS3231 rtc;  // real-time-clock object
 
 // Replace with your network credentials
 const char *ssid = "REPLACE_WITH_YOUR_SSID";
@@ -61,9 +61,8 @@ const char *password = "REPLACE_WITH_YOUR_PASSWORD";
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-void setup()
-{
-  outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN); // initialize the output register array
+void setup() {
+  outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN);  // initialize the output register array
 
   pinMode(LEDPIN, OUTPUT);
 
@@ -80,8 +79,7 @@ void setup()
   Serial.println(ssid);
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
@@ -104,8 +102,7 @@ void setup()
   //  timeClient.setTimeOffset(-21600);
 
   // Setting up RTC
-  if (!rtc.begin())
-  {
+  if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
     while (1)
       ;
@@ -122,29 +119,43 @@ void setup()
   //}
 }
 
-void loop()
-{
+void loop() {
 
-  if (wifi.status() == WL_CONNECTED)
-  {
+  if (WiFi.status() == WL_CONNECTED) {
     digitalWrite(WIFILED, HIGH);
-  }
-  else
-  {
+  } else {
     digitalWrite(WIFILED, LOW);
   }
 
   struct tm timeinfo;
   char Hours[3];
   char Minutes[3];
-  DateTime now = rtc.now();               // take a "snapshot" of the time
-  hours = (now.hour() ? now.hour() : 12); // account for the fact that in 24hr time, this is zero for 12AM
+  DateTime now = rtc.now();                // take a "snapshot" of the time
+  hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();
 
   //  while(!timeClient.update()) {
   //  timeClient.forceUpdate();
   // }
 
+
+  //Comment out after buttons installed
+  digitalWrite(NTPLED, HIGH);
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+
+  strftime(Hours, 3, "%H", &timeinfo);
+  strftime(Minutes, 3, "%I", &timeinfo);
+
+    // Convert minutes and hours we got from NTP to int
+    minutes = atoi(Minutes);
+  hours = atoi(Hours);
+  rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
+
+
+  /* uncomment after buttons installed
   if (digitalRead(WIFIBUTTON))
   {
     digitalWrite(NTPLED, high);
@@ -166,10 +177,9 @@ void loop()
   {
     digitalWrite(NTPLED, low);
   }
-
+*/
   int time = millis();
-  if (!(time % 1000))
-  {
+  if (!(time % 1000)) {
     digitalWrite(LEDPIN, HIGH);
     delay(200);
     digitalWrite(LEDPIN, LOW);
@@ -181,17 +191,15 @@ void loop()
   // break up current time into individual digits and convert to 12hr format
   min_ones = minutes % 10;
   min_tens = (minutes - min_ones) / 10;
-  hour_ones = (hours > 12) ? (hours - 12) % 10 : hours % 10;                           // convert to 12hr format
-  hour_tens = (hours > 12) ? (hours - hour_ones - 12) / 10 : (hours - hour_ones) / 10; // convert to 12hr format
+  hour_ones = (hours > 12) ? (hours - 12) % 10 : hours % 10;                            // convert to 12hr format
+  hour_tens = (hours > 12) ? (hours - hour_ones - 12) / 10 : (hours - hour_ones) / 10;  // convert to 12hr format
 
-  outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones); // push out the current time to the register array, turning off 10s hour tube if zero.
+  outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones);  // push out the current time to the register array, turning off 10s hour tube if zero.
 }
 
-void printLocalTime()
-{
+void printLocalTime() {
   struct tm timeinfo;
-  if (!getLocalTime(&timeinfo))
-  {
+  if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
   }
