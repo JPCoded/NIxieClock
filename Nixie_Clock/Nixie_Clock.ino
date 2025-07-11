@@ -175,7 +175,10 @@ void loop() {
   }
   else
   {
-    digitalWrite(NTPLED, low);
+     DateTime now = rtc.now();                // take a "snapshot" of the time
+     hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
+     minutes = now.minute();
+     digitalWrite(NTPLED, low);
   }
 */
   int time = millis();
