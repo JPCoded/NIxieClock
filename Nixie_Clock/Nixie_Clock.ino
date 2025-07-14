@@ -14,6 +14,8 @@
 #include <Wire.h>     // I2C library
 #include "RTClib.h"   // adafruit library to drive DS1307 RTC connected via I2C
 #include <time.h>     // Time library to get struct for time
+#include <ArduinoJson.h>
+#include "LittleFS.h"
 
 // WiFi headers
 #include <WiFi.h>
@@ -54,12 +56,14 @@ nixie10 outReg;  // tube-register object
 RTC_DS3231 rtc;  // real-time-clock object
 
 // Replace with your network credentials
-const char *ssid = "NETWORK";
-const char *password = "PASSWORD";
+const char *ssid = "";
+const char *password = "";
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
+//protype function
+void printLocalTime();
 
 void setup() {
   outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN);  // initialize the output register array
@@ -109,7 +113,7 @@ void setup() {
   }
 
   // set clock if RTC is not set
-   if (! rtc.lostPower()) {
+   if (rtc.lostPower()) {
   Serial.println("Power Loss or First Bootup; Setting a default time");
   //  following line sets the RTC to the date & time this sketch was compiled
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
