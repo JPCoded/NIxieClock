@@ -1,0 +1,7 @@
+{
+	"ssid":"network",
+	"password":"password",
+	"ntpServer":"pool.ntp.org",
+	"gmtOffsetSec":-21600,
+	"daylightOffSet": 3600
+}
