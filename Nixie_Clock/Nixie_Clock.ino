@@ -75,9 +75,13 @@ void setup() {
   //  while (!Serial); // for Leonardo/Micro/Zero
   // #endif
 
-  Serial.begin(57600);
+  Serial.begin(115200);
   Serial.println("Setup Started");
-
+ 
+  if (!LittleFS.begin(true)) {
+    Serial.println("LittleFS Mount Failed");
+    return;
+  }
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -211,6 +215,47 @@ void loop() {
   */
   outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones);  // push out the current time to the register array, turning off 10s hour tube if zero.
 delay(1000);
+}
+
+String readFile(fs::FS &fs, const char * path){
+  Serial.printf("Reading file: %s\r\n", path);
+  File file = fs.open(path, "r");
+  if(!file || file.isDirectory()){
+    Serial.println("- failed to open file for reading");
+    return String();
+  }
+  String fileContent;
+  while(file.available()){
+    fileContent += (char)file.read();
+  }
+  file.close();
+  return fileContent;
+}
+
+//Change to go into setup possibly
+void parseJsonData(const String& jsonData) {
+  <<!nav>>StaticJsonDocument<<!/nav>><2048> doc; // Adjust the size as needed
+  DeserializationError error = deserializeJson(doc, jsonData);
+
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.c_str());
+    return;
+  }
+
+  // Access JSON data
+  const char* ssid = doc["ssid"];
+  const char* password = doc["password"];
+
+  Serial.print("SSID: ");
+  Serial.println(ssid);
+  Serial.print("Password: ");
+  Serial.println(password);
+
+  // Example of accessing nested JSON
+  const char* deviceName = doc["device"]["name"];
+  Serial.print("Device Name: ");
+  Serial.println(deviceName);
 }
 
 void printLocalTime() {
