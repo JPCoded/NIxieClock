@@ -234,7 +234,7 @@ String readFile(fs::FS &fs, const char * path){
 
 //Change to go into setup possibly
 void parseJsonData(const String& jsonData) {
-  <<!nav>>StaticJsonDocument<<!/nav>><2048> doc; // Adjust the size as needed
+ StaticJsonDocument<2048> doc; // Adjust the size as needed
   DeserializationError error = deserializeJson(doc, jsonData);
 
   if (error) {
