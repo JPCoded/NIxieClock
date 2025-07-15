@@ -59,50 +59,33 @@ RTC_DS3231 rtc;  // real-time-clock object
 const char *ssid = "";
 const char *password = "";
 
+
+const char* jsonFilePath = "/config.json";
+const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(1) + 60; // Adjust the capacity based on your JSON
+DynamicJsonDocument doc(capacity);
+
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 //protype function
 
-String readFile(fs::FS &fs, const char * path){
-  Serial.printf("Reading file: %s\r\n", path);
-  File file = fs.open(path, "r");
-  if(!file || file.isDirectory()){
-    Serial.println("- failed to open file for reading");
-    return String();
-  }
-  String fileContent;
-  while(file.available()){
-    fileContent += (char)file.read();
-  }
-  file.close();
-  return fileContent;
-}
 
-//Change to go into setup possibly
-void parseJsonData(const String& jsonData) {
- StaticJsonDocument<2048> doc; // Adjust the size as needed
-  DeserializationError error = deserializeJson(doc, jsonData);
-
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.c_str());
+void readJsonFile(const char *path, DynamicJsonDocument& doc) {
+  File file = LittleFS.open(path, "r");
+  if (!file) {
+    Serial.println("Failed to open file for reading");
     return;
   }
 
-  // Access JSON data
-  const char* ssid = doc["ssid"];
-  const char* password = doc["password"];
+  DeserializationError error = deserializeJson(doc, file);
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.c_str());
+    file.close();
+    return;
+  }
 
-  Serial.print("SSID: ");
-  Serial.println(ssid);
-  Serial.print("Password: ");
-  Serial.println(password);
-
-  // Example of accessing nested JSON
-  const char* deviceName = doc["device"]["name"];
-  Serial.print("Device Name: ");
-  Serial.println(deviceName);
+  file.close();
 }
 
 void printLocalTime() {
@@ -129,7 +112,7 @@ void printLocalTime() {
   Serial.print("Second: ");
   Serial.println(&timeinfo, "%S");
 
-  Serial.println("Time variables");
+  Serial.println("Time variables:");
   char timeHour[3];
   strftime(timeHour, 3, "%H", &timeinfo);
   Serial.println(timeHour);
@@ -156,6 +139,10 @@ void setup() {
     Serial.println("LittleFS Mount Failed");
     return;
   }
+  readJsonFile(jsonFilePath, doc);
+
+ const char* ssidJ = doc["ssid"];
+ const char* passwordJ = doc["password"];
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
