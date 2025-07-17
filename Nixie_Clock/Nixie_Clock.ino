@@ -46,7 +46,7 @@
 #define OFF 11
 
 // NPT server info
-const char *ntpServer = "pool.ntp.org";
+const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = -21600;
 const int daylightOffset_sec = 3600;
 
@@ -56,12 +56,12 @@ nixie10 outReg;  // tube-register object
 RTC_DS3231 rtc;  // real-time-clock object
 
 // Replace with your network credentials
-const char *ssid = "";
-const char *password = "";
+const char* ssid = "";
+const char* password = "";
 
 
 const char* jsonFilePath = "/config.json";
-const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(1) + 60; // Adjust the capacity based on your JSON
+const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(1) + 60;  // Adjust the capacity based on your JSON
 DynamicJsonDocument doc(capacity);
 
 // Define NTP Client to get time
@@ -70,7 +70,7 @@ NTPClient timeClient(ntpUDP);
 //protype function
 
 
-void readJsonFile(const char *path, DynamicJsonDocument& doc) {
+void readJsonFile(const char* path, DynamicJsonDocument& doc) {
   File file = LittleFS.open(path, "r");
   if (!file) {
     Serial.println("Failed to open file for reading");
@@ -134,15 +134,15 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Setup Started");
- 
+
   if (!LittleFS.begin(true)) {
     Serial.println("LittleFS Mount Failed");
     return;
   }
   readJsonFile(jsonFilePath, doc);
 
- const char* ssidJ = doc["ssid"];
- const char* passwordJ = doc["password"];
+  const char* ssidJ = doc["ssid"];
+  const char* passwordJ = doc["password"];
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -178,13 +178,13 @@ void setup() {
   }
 
   // set clock if RTC is not set
-   if (rtc.lostPower()) {
-  Serial.println("Power Loss or First Bootup; Setting a default time");
-  //  following line sets the RTC to the date & time this sketch was compiled
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  // This line sets the RTC with an explicit date & time, for example to set
-  // January 21, 2014 at 3am you would call:
-  // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  if (rtc.lostPower()) {
+    Serial.println("Power Loss or First Bootup; Setting a default time");
+    //  following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
 }
 
@@ -218,7 +218,7 @@ void loop() {
   strftime(Hours, 3, "%H", &timeinfo);
   strftime(Minutes, 3, "%I", &timeinfo);
 
-    // Convert minutes and hours we got from NTP to int
+  // Convert minutes and hours we got from NTP to int
   minutes = atoi(Minutes);
   hours = atoi(Hours);
   rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
@@ -265,7 +265,7 @@ void loop() {
   min_tens = (minutes - min_ones) / 10;
   hour_ones = (hours > 12) ? (hours - 12) % 10 : hours % 10;                            // convert to 12hr format
   hour_tens = (hours > 12) ? (hours - hour_ones - 12) / 10 : (hours - hour_ones) / 10;  // convert to 12hr format
- /*
+                                                                                        /*
   Serial.print("Current Time: ");
   Serial.print(hour_tens);
   Serial.print(hour_ones);
@@ -274,8 +274,6 @@ void loop() {
   Serial.print(min_ones);
   Serial.println("");
   */
-  outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones);  // push out the current time to the register array, turning off 10s hour tube if zero.
-delay(1000);
+  outReg.set_16reg((hour_tens ? hour_tens : OFF), hour_ones, min_tens, min_ones);       // push out the current time to the register array, turning off 10s hour tube if zero.
+  delay(1000);
 }
-
-
