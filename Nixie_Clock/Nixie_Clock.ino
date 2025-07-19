@@ -23,9 +23,9 @@
 #include <WiFiUdp.h>
 
 // Register Pins
-#define LATCHPIN 3
-#define CLOCKPIN 15
-#define DATAPIN 2
+#define LATCHPIN 33 // latch pin or RCK
+#define CLOCKPIN 26 // clock pin or SCK
+#define DATAPIN 35 // data line or SER
 
 // Button Pins
 // #define HOURBUTTONPIN 5
@@ -44,7 +44,7 @@
 #define CLOCKSETDELAY 400
 // setting a tube to a value higher than 9 turns it off
 #define OFF 11
-
+struct tm timeinfo;
 // NPT server info
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = -21600;
@@ -89,7 +89,7 @@ void readJsonFile(const char* path, DynamicJsonDocument& doc) {
 }
 
 void printLocalTime() {
-  struct tm timeinfo;
+  
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
@@ -123,9 +123,10 @@ void printLocalTime() {
 }
 
 void setup() {
+  
+  pinMode(LEDPIN, OUTPUT);
   outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN);  // initialize the output register array
 
-  pinMode(LEDPIN, OUTPUT);
 
   // clock safety (borrowed from Adafruit example code)
   // #ifndef ESP8266
@@ -196,7 +197,7 @@ void loop() {
     digitalWrite(WIFILED, LOW);
   }
 
-  struct tm timeinfo;
+
   char Hours[3];
   char Minutes[3];
   DateTime now = rtc.now();                // take a "snapshot" of the time
@@ -258,14 +259,17 @@ void loop() {
   }
 
   // Convert minutes and hours we got from NTP to int
-  minutes = atoi(Minutes);
-  hours = atoi(Hours);
+  
+ // minutes = atoi(Minutes);
+  Serial.println(minutes);
+  //hours = atoi(Hours);
+ // Serial.println(hours);
   // break up current time into individual digits and convert to 12hr format
   min_ones = minutes % 10;
   min_tens = (minutes - min_ones) / 10;
   hour_ones = (hours > 12) ? (hours - 12) % 10 : hours % 10;                            // convert to 12hr format
   hour_tens = (hours > 12) ? (hours - hour_ones - 12) / 10 : (hours - hour_ones) / 10;  // convert to 12hr format
-                                                                                        /*
+  /*
   Serial.print("Current Time: ");
   Serial.print(hour_tens);
   Serial.print(hour_ones);
