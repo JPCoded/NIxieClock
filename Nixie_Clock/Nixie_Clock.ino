@@ -144,6 +144,12 @@ void setup() {
 
   const char* ssidJ = doc["ssid"];
   const char* passwordJ = doc["password"];
+  Serial.print("JSON SSID: ");
+  Serial.print(ssidJ);
+  Serial.println("");
+  Serial.print("JSON Password: ");
+  Serial.print(passordJ);
+  println("");
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
