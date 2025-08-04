@@ -60,25 +60,23 @@ RTC_DS3231 rtc;  // real-time-clock object
 // const char* ssid = "";
 // const char* password = "";
 
-
 const char* jsonFilePath = "/config.json";
 const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(1) + 60;  // Adjust the capacity based on your JSON
-DynamicJsonDocument doc(capacity);
+DynamicJsonDocument jsonDoc(capacity);
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
-//protype function
 
 
-void readJsonFile(const char* path, DynamicJsonDocument& doc) {
+void readJsonFile(const char* path, DynamicJsonDocument& jsonDoc) {
   File file = LittleFS.open(path, "r");
   if (!file) {
     Serial.println("Failed to open file for reading");
     return;
   }
 
-  DeserializationError error = deserializeJson(doc, file);
+  DeserializationError error = deserializeJson(jsonDoc, file);
   if (error) {
     Serial.print(F("deserializeJson() failed: "));
     Serial.println(error.c_str());
@@ -98,7 +96,7 @@ void printLocalTime() {
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   Serial.print("Day of week: ");
   Serial.println(&timeinfo, "%A");
-  Serial.print("Month: ");
+  Serial.print("Month: ";
   Serial.println(&timeinfo, "%B");
   Serial.print("Day of Month: ");
   Serial.println(&timeinfo, "%d");
@@ -128,33 +126,30 @@ void setup() {
   pinMode(LEDPIN, OUTPUT);
   outReg.initialize_16reg(LATCHPIN, CLOCKPIN, DATAPIN);  // initialize the output register array
 
-
-  // clock safety (borrowed from Adafruit example code)
-  // #ifndef ESP8266
-  //  while (!Serial); // for Leonardo/Micro/Zero
-  // #endif
-
   Serial.begin(115200);
   Serial.println("Setup Started");
+
+  Serial.println("Begin LittleFS");
 
   if (!LittleFS.begin(true)) {
     Serial.println("LittleFS Mount Failed");
     return;
   }
-  readJsonFile(jsonFilePath, doc);
+  Serial.println("Read Json File");
+  readJsonFile(jsonFilePath, jsonDoc);
 
-  const char* ssidJ = doc["ssid"];
-  const char* passwordJ = doc["password"];
+  const char* ssidJ = jsonDoc["ssid"];
+  const char* passwordJ = jsonDoc["password"];
   Serial.print("JSON SSID: ");
   Serial.print(ssidJ);
   Serial.println("");
   Serial.print("JSON Password: ");
-  Serial.print(passordJ);
+  Serial.print(passwordJ);
   println("");
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, passwordJ);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
