@@ -5,8 +5,8 @@
  *
  * The clock can also output data via serial
  *
- * Nixie10 headers and original code by Chris Green - 1/11/2016
- * Modified by John Pomeroy
+ * Nixie10 headers and original code outtline by Chris Green - 1/11/2016
+ * Modified heavily by John Pomeroy
  *
  */
 
@@ -14,8 +14,8 @@
 #include <Wire.h>     // I2C library
 #include "RTClib.h"   // adafruit library to drive DS1307 RTC connected via I2C
 #include <time.h>     // Time library to get struct for time
-#include <ArduinoJson.h>
-#include "LittleFS.h"
+#include <ArduinoJson.h> // Json header
+#include "LittleFS.h" // LittleFS header
 
 // WiFi headers
 #include <WiFi.h>
@@ -36,6 +36,7 @@
 #define WIFILED 14
 #define NTPLED 12
 
+// RTC pins
 // SQW PIN 4
 // SCL PIN 22
 // SDA PIN 21
@@ -56,8 +57,8 @@ nixie10 outReg;  // tube-register object
 RTC_DS3231 rtc;  // real-time-clock object
 
 // Replace with your network credentials
-const char* ssid = "";
-const char* password = "";
+// const char* ssid = "";
+// const char* password = "";
 
 
 const char* jsonFilePath = "/config.json";
