@@ -148,7 +148,7 @@ void setup() {
   println("");
   // Connecting to WiFi
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(ssidJ);
   WiFi.begin(ssid, passwordJ);
 
   while (WiFi.status() != WL_CONNECTED) {
