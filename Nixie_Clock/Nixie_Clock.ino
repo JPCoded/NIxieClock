@@ -96,7 +96,7 @@ void printLocalTime() {
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   Serial.print("Day of week: ");
   Serial.println(&timeinfo, "%A");
-  Serial.print("Month: ";
+  Serial.print("Month: ");
   Serial.println(&timeinfo, "%B");
   Serial.print("Day of Month: ");
   Serial.println(&timeinfo, "%d");
@@ -145,7 +145,7 @@ void setup() {
   Serial.println("");
   Serial.print("JSON Password: ");
   Serial.print(passwordJ);
-  println("");
+  Serial.println("");
   // Connecting to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssidJ);
