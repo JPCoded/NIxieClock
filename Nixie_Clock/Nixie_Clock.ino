@@ -47,9 +47,9 @@
 #define OFF 11
 struct tm timeinfo;
 // NPT server info
-const char* ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = -21600;
-const int daylightOffset_sec = 3600;
+// const char* ntpServer = "pool.ntp.org";
+// const long gmtOffset_sec = -21600;
+// const int daylightOffset_sec = 3600;
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
@@ -61,7 +61,7 @@ RTC_DS3231 rtc;  // real-time-clock object
 // const char* password = "";
 
 const char* jsonFilePath = "/config.json";
-const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(1) + 60;  // Adjust the capacity based on your JSON
+const size_t capacity = JSON_ARRAY_SIZE(5) + JSON_OBJECT_SIZE(1) + 60;  // Adjust the capacity based on your JSON
 DynamicJsonDocument jsonDoc(capacity);
 
 // Define NTP Client to get time
@@ -140,6 +140,10 @@ void setup() {
 
   const char* ssidJ = jsonDoc["ssid"];
   const char* passwordJ = jsonDoc["password"];
+  const char* ntpServerJ = jsonDoc["ntpServer"];
+  const long gmtOffsetSecJ = jsonDoc["gmtOffsetSec"];
+  const int daylightOffsetJ = jsonDoc["daylightOffSet"];
+
   Serial.print("JSON SSID: ");
   Serial.print(ssidJ);
   Serial.println("");
@@ -159,10 +163,21 @@ void setup() {
   // Print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.print("IP address: ");
+  Serial.print(WiFi.localIP());
+  Serial.println("");
 
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  Serial.print("gmt Offset: ");
+  Serial.print(gmtOffsetSecJ);
+  Serial.println("");
+  Serial.print("Daylight Offset: ");
+  Serial.print(daylightOffsetJ);
+  Serial.println("");
+  Serial.print("NTP Server: ");
+  Serial.print(ntpServerJ);
+  Serial.println("");
+  
+  configTime(gmtOffsetSecJ, daylightOffsetJ, ntpServerJ);
   printLocalTime();
   // Initialize a NTPClient to get time
   //  timeClient.begin();
