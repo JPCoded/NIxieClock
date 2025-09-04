@@ -28,15 +28,13 @@
 #define DATAPIN 35 // data line or SER
 
 // Button Pins
-// #define HOURBUTTONPIN 5
-// #define MINUTEBUTTONPIN 6
 #define WIFIBUTTON 32
 
 #define LEDPIN 13
 #define WIFILED 14
 #define NTPLED 12
 
-// RTC pins
+// RTC pins for reference
 // SQW PIN 4
 // SCL PIN 22
 // SDA PIN 21
@@ -46,19 +44,11 @@
 // setting a tube to a value higher than 9 turns it off
 #define OFF 11
 struct tm timeinfo;
-// NPT server info
-// const char* ntpServer = "pool.ntp.org";
-// const long gmtOffset_sec = -21600;
-// const int daylightOffset_sec = 3600;
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
 nixie10 outReg;  // tube-register object
 RTC_DS3231 rtc;  // real-time-clock object
-
-// Replace with your network credentials
-// const char* ssid = "";
-// const char* password = "";
 
 const char* jsonFilePath = "/config.json";
 const size_t capacity = JSON_ARRAY_SIZE(5) + JSON_OBJECT_SIZE(1) + 60;  // Adjust the capacity based on your JSON
@@ -67,7 +57,6 @@ DynamicJsonDocument jsonDoc(capacity);
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
-
 
 void readJsonFile(const char* path, DynamicJsonDocument& jsonDoc) {
   File file = LittleFS.open(path, "r");
@@ -135,25 +124,26 @@ void setup() {
     Serial.println("LittleFS Mount Failed");
     return;
   }
+  
   Serial.println("Read Json File");
   readJsonFile(jsonFilePath, jsonDoc);
 
-  const char* ssidJ = jsonDoc["ssid"];
-  const char* passwordJ = jsonDoc["password"];
-  const char* ntpServerJ = jsonDoc["ntpServer"];
-  const long gmtOffsetSecJ = jsonDoc["gmtOffsetSec"];
-  const int daylightOffsetJ = jsonDoc["daylightOffSet"];
+  const char* ssid = jsonDoc["ssid"];
+  const char* password = jsonDoc["password"];
+  const char* ntpServer = jsonDoc["ntpServer"];
+  const long gmtOffsetSec = jsonDoc["gmtOffsetSec"];
+  const int daylightOffset = jsonDoc["daylightOffSet"];
 
   Serial.print("JSON SSID: ");
-  Serial.print(ssidJ);
+  Serial.print(ssid);
   Serial.println("");
   Serial.print("JSON Password: ");
-  Serial.print(passwordJ);
+  Serial.print(password);
   Serial.println("");
   // Connecting to WiFi
   Serial.print("Connecting to ");
-  Serial.println(ssidJ);
-  WiFi.begin(ssidJ, passwordJ);
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -168,16 +158,16 @@ void setup() {
   Serial.println("");
 
   Serial.print("gmt Offset: ");
-  Serial.print(gmtOffsetSecJ);
+  Serial.print(gmtOffsetSec);
   Serial.println("");
   Serial.print("Daylight Offset: ");
-  Serial.print(daylightOffsetJ);
+  Serial.print(daylightOffset);
   Serial.println("");
   Serial.print("NTP Server: ");
-  Serial.print(ntpServerJ);
+  Serial.print(ntpServer);
   Serial.println("");
   
-  configTime(gmtOffsetSecJ, daylightOffsetJ, ntpServerJ);
+  configTime(gmtOffsetSec, daylightOffset, ntpServer);
   printLocalTime();
   // Initialize a NTPClient to get time
   //  timeClient.begin();
@@ -214,17 +204,11 @@ void loop() {
     digitalWrite(WIFILED, LOW);
   }
 
-
   char Hours[3];
   char Minutes[3];
   DateTime now = rtc.now();                // take a "snapshot" of the time
   hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();
-
-  //  while(!timeClient.update()) {
-  //  timeClient.forceUpdate();
-  // }
-
 
   //Comment out after buttons installed
   digitalWrite(NTPLED, HIGH);
@@ -236,13 +220,14 @@ void loop() {
   strftime(Hours, 3, "%H", &timeinfo);
   strftime(Minutes, 3, "%I", &timeinfo);
 
+  // Add to task for when wifi is turned on, update time. 
   // Convert minutes and hours we got from NTP to int
   minutes = atoi(Minutes);
   hours = atoi(Hours);
   rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
-
-
-  /* uncomment after buttons installed
+  
+  /* Turn into a task to deal with wifi being turned on or off and updating time through wifi. 
+  
   if (digitalRead(WIFIBUTTON))
   {
     digitalWrite(NTPLED, high);
@@ -268,6 +253,8 @@ void loop() {
      digitalWrite(NTPLED, low);
   }
 */
+
+  // Possbily remove. Don't remember reason for this. 
   int time = millis();
   if (!(time % 1000)) {
     digitalWrite(LEDPIN, HIGH);
