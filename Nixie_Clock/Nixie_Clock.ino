@@ -44,6 +44,7 @@
 // setting a tube to a value higher than 9 turns it off
 #define OFF 11
 struct tm timeinfo;
+TaskHandle_t TaskUpdateWifiTimeHandle = NULL;
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
@@ -57,6 +58,14 @@ DynamicJsonDocument jsonDoc(capacity);
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
+
+void TaskUpdateWifiTime(void *parameter) { 
+  for (;;) {
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+  }
+}
 
 void readJsonFile(const char* path, DynamicJsonDocument& jsonDoc) {
   File file = LittleFS.open(path, "r");
@@ -194,6 +203,17 @@ void setup() {
     // January 21, 2014 at 3am you would call:
     // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
+
+
+    xTaskCreatePinnedToCore(
+    TaskUpdateWifiTime,             // Task function
+    "TaskUpdateWifiTime",           // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &TaskUpdateWifiTimeHandle,      // Task handle
+    1                  // Core 1
+  );
 }
 
 void loop() {
