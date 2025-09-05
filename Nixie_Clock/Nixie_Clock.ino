@@ -45,6 +45,7 @@
 #define OFF 11
 struct tm timeinfo;
 TaskHandle_t TaskUpdateWifiTimeHandle = NULL;
+TaskHandle_t TaskUpdateNixieHandle = NULL:
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
@@ -60,6 +61,14 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
 void TaskUpdateWifiTime(void *parameter) { 
+  for (;;) {
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+  }
+}
+
+void TaskUpdateNixie(void *parameter) { 
   for (;;) {
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -204,7 +213,6 @@ void setup() {
     // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
 
-
     xTaskCreatePinnedToCore(
     TaskUpdateWifiTime,             // Task function
     "TaskUpdateWifiTime",           // Task name
@@ -214,8 +222,19 @@ void setup() {
     &TaskUpdateWifiTimeHandle,      // Task handle
     1                  // Core 1
   );
+
+    xTaskCreatePinnedToCore(
+    TaskUpdateNixie,             // Task function
+    "TaskUpdateNixie",           // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &TaskUpdateNixieHandle,      // Task handle
+    0                 // Core 0
+  );
 }
 
+//Most of this will be moved to tasks.
 void loop() {
 
   if (WiFi.status() == WL_CONNECTED) {
