@@ -45,7 +45,7 @@
 #define OFF 11
 struct tm timeinfo;
 TaskHandle_t TaskUpdateWifiTimeHandle = NULL;
-TaskHandle_t TaskUpdateNixieHandle = NULL:
+TaskHandle_t TaskUpdateNixieHandle = NULL;
 
 int hour_tens, hour_ones, min_tens, min_ones, hours, minutes;  // some global variables to hold current time
 
