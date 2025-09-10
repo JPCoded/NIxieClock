@@ -63,6 +63,38 @@ NTPClient timeClient(ntpUDP);
 void TaskUpdateWifiTime(void *parameter) { 
   for (;;) {
 
+    if (WiFi.status() == WL_CONNECTED) {
+      digitalWrite(WIFILED, HIGH);
+    } else {
+      digitalWrite(WIFILED, LOW);
+    }
+/*
+      if (digitalRead(WIFIBUTTON))
+  {
+    digitalWrite(NTPLED, high);
+    if (!getLocalTime(&timeinfo))
+    {
+      Serial.println("Failed to obtain time");
+      return;
+    }
+
+    strftime(Hours, 3, "%H", &timeinfo);
+    strftime(Minutes, 3, "%I", &timeinfo)
+    
+    // Convert minutes and hours we got from NTP to int
+    minutes = atoi(Minutes);
+    hours = atoi(Hours);
+    rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
+  }
+  else
+  {
+     DateTime now = rtc.now();                // take a "snapshot" of the time
+     hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
+     minutes = now.minute();
+     digitalWrite(NTPLED, low);
+  }
+*/
+    
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
   }
@@ -237,19 +269,13 @@ void setup() {
 //Most of this will be moved to tasks.
 void loop() {
 
-  if (WiFi.status() == WL_CONNECTED) {
-    digitalWrite(WIFILED, HIGH);
-  } else {
-    digitalWrite(WIFILED, LOW);
-  }
-
   char Hours[3];
   char Minutes[3];
   DateTime now = rtc.now();                // take a "snapshot" of the time
   hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
   minutes = now.minute();
 
-  //Comment out after buttons installed
+ 
   digitalWrite(NTPLED, HIGH);
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
@@ -267,31 +293,6 @@ void loop() {
   
   /* Turn into a task to deal with wifi being turned on or off and updating time through wifi. 
   
-  if (digitalRead(WIFIBUTTON))
-  {
-    digitalWrite(NTPLED, high);
-    if (!getLocalTime(&timeinfo))
-    {
-      Serial.println("Failed to obtain time");
-      return;
-    }
-
-    strftime(Hours, 3, "%H", &timeinfo);
-    strftime(Minutes, 3, "%I", &timeinfo)
-    
-    // Convert minutes and hours we got from NTP to int
-    minutes = atoi(Minutes);
-    hours = atoi(Hours);
-    rtc.adjust(DateTime(now.year(), now.month(), now.day(), hours, minutes, now.second()));
-  }
-  else
-  {
-     DateTime now = rtc.now();                // take a "snapshot" of the time
-     hours = (now.hour() ? now.hour() : 12);  // account for the fact that in 24hr time, this is zero for 12AM
-     minutes = now.minute();
-     digitalWrite(NTPLED, low);
-  }
-*/
 
   // Possbily remove. Don't remember reason for this. 
   int time = millis();
